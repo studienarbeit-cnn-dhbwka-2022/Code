@@ -46,4 +46,27 @@ async def create_upload_file(file: UploadFile = File(...)):
 
     sleep(1)
 
-    return {"src": f"http://127.0.0.1:8000/img?path={file.filename}"}
+    results = [
+        {
+            "title": "Nearest Neighbor",
+            "alt": "Image processed with Nearest Neighbor algorithm",
+            "src": f"http://127.0.0.1:8000/img?path={file.filename}"
+        },
+        {
+            "title": "Bilinear",
+            "alt": "Image processed with Bilinear algorithm",
+            "src": f"http://127.0.0.1:8000/img?path={file.filename}"
+        },
+        {
+            "title": "Bicubic",
+            "alt": "Image processed with Bicubic algorithm",
+            "src": f"http://127.0.0.1:8000/img?path={file.filename}"
+        },
+        {
+            "title": "Lanczos",
+            "alt": "Image processed with Lanczos algorithm",
+            "src": f"http://127.0.0.1:8000/img?path={file.filename}"
+        },
+    ]
+
+    return results
