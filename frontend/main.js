@@ -14,6 +14,12 @@ form.addEventListener('submit', uploadImage);
 function uploadImage(event) {
     event.preventDefault();
 
+    const results = document.getElementById('results');
+    results.innerHTML = `
+<div class="spinner-border" role="status">
+    <span class="visually-hidden">Loading...</span>
+</div>`;
+
     const input = document.querySelector('#imageInput');
     const file = input.files[0];
 
@@ -26,35 +32,41 @@ function uploadImage(event) {
         }
     })
         .then(response => {
-            console.log(response.data.src)
+            console.log(response.data.length);
+            results.innerHTML = '';
 
-            const results = document.getElementById('results');
+            for (let i = 0; i < response.data.length; i++) {
+                const image = response.data[i];
 
-            const newChild = document.createElement('div');
-            newChild.classList.add('col-lg-3', 'col-sm-6');
+                const newChild = document.createElement('div');
+                newChild.classList.add('col-lg-3', 'col-sm-6');
 
-            const newTitle = document.createElement('h2');
-            newTitle.classList.add('pt-3');
-            newTitle.textContent = response.data.src.title;
+                const newTitle = document.createElement('h2');
+                newTitle.classList.add('pt-3');
+                newTitle.textContent = image.title;
 
-            const newImage = document.createElement('img');
-            newImage.src = response.data.src;
-            newImage.classList.add('img-fluid', 'rounded-1');
-            newImage.alt = response.data.src.alt;
+                const newImage = document.createElement('img');
+                newImage.src = image.src;
+                newImage.classList.add('img-fluid', 'rounded-1');
+                newImage.alt = image.alt;
 
-            newChild.appendChild(newTitle);
-            newChild.appendChild(newImage);
+                newChild.appendChild(newTitle);
+                newChild.appendChild(newImage);
 
-            results.appendChild(newChild);
-
-            // The response text is the URL of the processed image
-            const imageUrl = response.data.src;
-            // Update the placeholder image with the processed image
-            const placeholderImage = document.getElementById("out");
-            placeholderImage.src = imageUrl;
+                results.appendChild(newChild);
+            }
         })
         .catch(error => {
             console.error(error);
+            results.innerHTML = `
+<div class="row justify-content-md-center">
+    <div class="col col-lg-6 p-3 bg-danger rounded-3 text-white" id="error">
+        <p>Fehler beim Laden der Datei!</p>
+        <p>Bitte versuchen Sie es erneut.</p>
+        <p>Fehler: ${error} </p>
+    </div>
+</div>
+`
         });
 }
 
