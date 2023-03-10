@@ -18,6 +18,18 @@ app.add_middleware(
 )
 
 
+@app.get("/")
+def read_root():
+    # return main.html
+    return FileResponse("./frontend/main.html")
+
+
+@app.get("/main.js")
+def read_main_js():
+    # return main.js
+    return FileResponse("./frontend/main.js")
+
+
 @app.get("/img")
 async def read_image(path: str):
     image_path = Path(f"./img/{path}")
@@ -50,22 +62,22 @@ async def create_upload_file(file: UploadFile = File(...)):
         {
             "title": "Nearest Neighbor",
             "alt": "Image processed with Nearest Neighbor algorithm",
-            "src": f"http://127.0.0.1:8000/img?path={file.filename}"
+            "src": f"img?path={file.filename}"
         },
         {
             "title": "Bilinear",
             "alt": "Image processed with Bilinear algorithm",
-            "src": f"http://127.0.0.1:8000/img?path={file.filename}"
+            "src": f"img?path={file.filename}"
         },
         {
             "title": "Bicubic",
             "alt": "Image processed with Bicubic algorithm",
-            "src": f"http://127.0.0.1:8000/img?path={file.filename}"
+            "src": f"img?path={file.filename}"
         },
         {
             "title": "Lanczos",
             "alt": "Image processed with Lanczos algorithm",
-            "src": f"http://127.0.0.1:8000/img?path={file.filename}"
+            "src": f"img?path={file.filename}"
         },
     ]
 

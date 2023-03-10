@@ -14,6 +14,8 @@ form.addEventListener('submit', uploadImage);
 function uploadImage(event) {
     event.preventDefault();
 
+    console.log("ok")
+
     const results = document.getElementById('results');
     results.innerHTML = `
 <div class="spinner-border" role="status">
@@ -26,7 +28,7 @@ function uploadImage(event) {
     const formData = new FormData();
     formData.append('file', file);
 
-    axios.post('http://127.0.0.1:8000/img', formData, {
+    axios.post('img', formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
@@ -39,7 +41,7 @@ function uploadImage(event) {
                 const image = response.data[i];
 
                 const newChild = document.createElement('div');
-                newChild.classList.add('col-lg-3', 'col-sm-6');
+                newChild.classList.add('col-lg-3', 'col-md-6');
 
                 const newTitle = document.createElement('h2');
                 newTitle.classList.add('pt-3');
@@ -47,7 +49,7 @@ function uploadImage(event) {
 
                 const newImage = document.createElement('img');
                 newImage.src = image.src;
-                newImage.classList.add('img-fluid', 'rounded-1');
+                newImage.classList.add('img-fluid', 'rounded-1', 'shadow');
                 newImage.alt = image.alt;
 
                 newChild.appendChild(newTitle);
