@@ -5,6 +5,8 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.skalierungsmethoden.pixel_verdopplung import PixelVerdopplung
+
 app = FastAPI()
 
 # configure CORS middleware
@@ -47,16 +49,26 @@ async def create_upload_file(file: UploadFile = File(...)):
     if not file.content_type.startswith('image/'):
         raise HTTPException(status_code=422, detail="Only image files are allowed")
 
+    filepath = f"./img/{file.filename}"
+
     try:
         contents = file.file.read()
-        with open(f"./img/{file.filename}", 'wb') as f:
+        with open(filepath, 'wb') as f:
             f.write(contents)
     except Exception:
-        return {"message": "There was an error uploading the file"}
+        return {
+            "message": "There was an error uploading the file",
+            "error": f"{Exception}",
+        }
     finally:
         file.file.close()
 
     sleep(1)
+
+    try:
+        PixelVerdopplung(filepath).manipulate((200, 200))
+    except:
+        pass
 
     results = [
         {
