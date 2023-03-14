@@ -1,4 +1,5 @@
 import logging
+import uuid
 from pathlib import Path
 from time import sleep
 from fastapi import FastAPI, File, UploadFile, HTTPException
@@ -49,7 +50,8 @@ async def create_upload_file(file: UploadFile = File(...)):
     if not file.content_type.startswith('image/'):
         raise HTTPException(status_code=422, detail="Only image files are allowed")
 
-    filepath = f"./img/{file.filename}"
+    filename = f"{uuid.uuid4()}.{file.filename.split('.')[-1]}"
+    filepath = f"./img/{filename}"
 
     try:
         contents = file.file.read()
@@ -66,30 +68,30 @@ async def create_upload_file(file: UploadFile = File(...)):
     sleep(1)
 
     try:
-        PixelVerdopplung(filepath).manipulate((200, 200))
-    except:
-        pass
+        image_p2 = PixelVerdopplung(filepath).manipulate((610, 426))
+    except Exception:
+        image_p2 = "ALAAARM.png"
 
     results = [
         {
             "title": "Nearest Neighbor",
             "alt": "Image processed with Nearest Neighbor algorithm",
-            "src": f"img?path={file.filename}"
+            "src": f"img?path={image_p2}"
         },
         {
             "title": "Bilinear",
             "alt": "Image processed with Bilinear algorithm",
-            "src": f"img?path={file.filename}"
+            "src": f"img?path={filename}"
         },
         {
             "title": "Bicubic",
             "alt": "Image processed with Bicubic algorithm",
-            "src": f"img?path={file.filename}"
+            "src": f"img?path={filename}"
         },
         {
             "title": "Lanczos",
             "alt": "Image processed with Lanczos algorithm",
-            "src": f"img?path={file.filename}"
+            "src": f"img?path={filename}"
         },
     ]
 
