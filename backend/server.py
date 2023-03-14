@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.skalierungsmethoden.pixel_verdopplung import PixelVerdopplung
 
-app = FastAPI()
+app = FastAPI(debug=True)
 
 # configure CORS middleware
 origins = ["*"]  # change this to restrict access to specific domains
