@@ -16,11 +16,11 @@
 
     <form>
         <div class="row justify-content-md-center">
-            <div class="col col-lg-6">
-                <input id="imageInput" onchange="loadFile(event)" class="form-control col-md-auto" type="file"
+            <div class="col col-lg-6 input-group">
+                <input id="imageInput" onchange="loadFile(event)" class="form-control col-md-auto w-auto" type="file"
                        accept="image/png, image/gif, image/jpeg">
-            </div>
-            <div class="col-auto">
+                <input type="number" aria-label="width" placeholder="Width" min="1" max="10000" class="form-control">
+                <input type="number" aria-label="height" placeholder="Height" min="1" max="10000" class="form-control">
                 <button type="submit" class="btn btn-outline-dark">
                     <i class="bi bi-upload"></i>
                 </button>

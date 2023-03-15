@@ -5,6 +5,12 @@ const loadFile = function (event) {
     output.src = URL.createObjectURL(event.target.files[0]);
     output.onload = function () {
         URL.revokeObjectURL(output.src) // free memory
+
+        // set image dimensions as input placeholders
+        const widthInput = document.querySelector('input[aria-label="width"]');
+        const heightInput = document.querySelector('input[aria-label="height"]');
+        widthInput.value = output.naturalWidth;
+        heightInput.value = output.naturalHeight;
     }
 }
 
@@ -25,8 +31,16 @@ function uploadImage(event) {
     const input = document.querySelector('#imageInput');
     const file = input.files[0];
 
+    const widthInput = document.querySelector('input[aria-label="width"]');
+    const heightInput = document.querySelector('input[aria-label="height"]');
+    const width = widthInput.value;
+    const height = heightInput.value;
+
+
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('width', width);
+    formData.append('height', height);
 
     axios.post('img', formData, {
         headers: {
@@ -41,7 +55,7 @@ function uploadImage(event) {
                 const image = response.data[i];
 
                 const newChild = document.createElement('div');
-                newChild.classList.add('col-lg-3', 'col-md-6');
+                newChild.classList.add('col-lg-3', 'col-md-6', 'position-relative');
 
                 const newTitle = document.createElement('h2');
                 newTitle.classList.add('pt-3');
@@ -52,8 +66,15 @@ function uploadImage(event) {
                 newImage.classList.add('img-fluid', 'rounded-1', 'shadow');
                 newImage.alt = image.alt;
 
+                const htmlAnchorElement = document.createElement('a');
+                htmlAnchorElement.classList.add('stretched-link');
+                htmlAnchorElement.target = '_blank';
+                htmlAnchorElement.href = image.src;
+
+
                 newChild.appendChild(newTitle);
                 newChild.appendChild(newImage);
+                newChild.appendChild(htmlAnchorElement);
 
                 results.appendChild(newChild);
             }

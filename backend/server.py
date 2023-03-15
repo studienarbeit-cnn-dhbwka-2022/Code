@@ -2,7 +2,7 @@ import logging
 import uuid
 from pathlib import Path
 from time import sleep
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -27,6 +27,12 @@ def read_root():
     return FileResponse("./frontend/main.html")
 
 
+@app.get("/favicon.ico")
+def read_root():
+    # return main.html
+    return FileResponse("./frontend/favicon.ico")
+
+
 @app.get("/main.js")
 def read_main_js():
     # return main.js
@@ -46,9 +52,16 @@ async def read_image(path: str):
 
 
 @app.post("/img")
-async def create_upload_file(file: UploadFile = File(...)):
+async def create_upload_file(file: UploadFile = File(...), width: int = Form(...), height: int = Form(...)):
     if not file.content_type.startswith('image/'):
-        raise HTTPException(status_code=422, detail="Only image files are allowed")
+        raise HTTPException(status_code=422, detail="Only image files are allowed", headers={"X-Error": "Only image files are allowed"})
+
+    if width < 1 or height < 1:
+        raise HTTPException(
+            status_code=422,
+            detail="Resolution must be greater than 0",
+            headers={"X-Error": "Resolution must be greater than 0"}
+        )
 
     filename = f"{uuid.uuid4()}.{file.filename.split('.')[-1]}"
     filepath = f"./img/{filename}"
@@ -58,17 +71,18 @@ async def create_upload_file(file: UploadFile = File(...)):
         with open(filepath, 'wb') as f:
             f.write(contents)
     except Exception:
-        return {
-            "message": "There was an error uploading the file",
-            "error": f"{Exception}",
-        }
+        raise HTTPException(
+            status_code=422,
+            detail="",
+            headers={"X-Error": "Resolution must be greater than 0"}
+        )
     finally:
         file.file.close()
 
     sleep(1)
 
     try:
-        image_p2 = PixelVerdopplung(filepath).manipulate((610, 426))
+        image_p2 = PixelVerdopplung(filepath).manipulate((width, height))
     except Exception:
         image_p2 = "ALAAARM.png"
 
