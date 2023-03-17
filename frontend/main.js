@@ -1,28 +1,71 @@
+
+const widthInput = document.querySelector('input[aria-label="width"]');
+const heightInput = document.querySelector('input[aria-label="height"]');
+const output = document.getElementById('output');
+const range = document.querySelector('input[aria-label="range"]');
+const rangevalue = document.getElementById('range-value');
+const results = document.getElementById('results');
+
+const form = document.querySelector('form');
+form.addEventListener('submit', uploadImage);
+
+
 const loadFile = function (event) {
     event.preventDefault();
-
-    const output = document.getElementById('output');
     output.src = URL.createObjectURL(event.target.files[0]);
     output.onload = function () {
         URL.revokeObjectURL(output.src) // free memory
 
         // set image dimensions as input placeholders
-        const widthInput = document.querySelector('input[aria-label="width"]');
-        const heightInput = document.querySelector('input[aria-label="height"]');
         widthInput.value = output.naturalWidth;
         heightInput.value = output.naturalHeight;
+        range.classList.remove("d-none");
+        range.removeAttribute('disabled');
+        changerangevalue(1);
     }
 }
 
-const form = document.querySelector('form');
-form.addEventListener('submit', uploadImage);
+function onScaleChange() {
+    const scale = parseFloat(range.value);
+  
+    const newWidth = Math.round(output.naturalWidth * scale);
+    const newHeight = Math.round(output.naturalHeight * scale);
+
+    output.width = newWidth;
+    output.height = newHeight;
+
+    widthInput.value = newWidth;
+    heightInput.value = newHeight;
+
+    changerangevalue(range.value);
+}
+  
+
+function ondimensionchange() {
+    const width = parseInt(widthInput.value);
+    const height = parseInt(heightInput.value);
+    const originalWidth = parseInt(widthInput.getAttribute("data-original-value"));
+    const originalHeight = parseInt(heightInput.getAttribute("data-original-value"));
+
+    if (width > 0 && height > 0 && originalWidth > 0 && originalHeight > 0) {
+        const widthScaleFactor = width / originalWidth;
+        const heightScaleFactor = height / originalHeight;
+        const scaleFactor = Math.max(widthScaleFactor, heightScaleFactor);
+        changerangevalue(scaleFactor.toFixed(2));
+    }
+}
+
+function changerangevalue(value) {
+    range.value = value;
+    rangevalue.innerHTML = 'Factor of: x' + value;
+}
+
 
 function uploadImage(event) {
     event.preventDefault();
 
     console.log("ok")
 
-    const results = document.getElementById('results');
     results.innerHTML = `
 <div class="spinner-border" role="status">
     <span class="visually-hidden">Loading...</span>
@@ -31,8 +74,6 @@ function uploadImage(event) {
     const input = document.querySelector('#imageInput');
     const file = input.files[0];
 
-    const widthInput = document.querySelector('input[aria-label="width"]');
-    const heightInput = document.querySelector('input[aria-label="height"]');
     const width = widthInput.value;
     const height = heightInput.value;
 
