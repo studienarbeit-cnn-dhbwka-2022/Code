@@ -7,6 +7,8 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.skalierungsmethoden.pixel_verdopplung import PixelVerdopplung
+from backend.skalierungsmethoden.bilinear_interpolation import BilinearInterpolation
+
 
 app = FastAPI(debug=True)
 
@@ -86,6 +88,11 @@ async def create_upload_file(file: UploadFile = File(...), width: int = Form(...
     except Exception:
         image_p2 = "ALAAARM.png"
 
+    try:
+        image_biLi = BilinearInterpolation(filepath).manipulate((width, height))
+    except Exception:
+        image_biLi = "ALAAARM.png"
+
     results = [
         {
             "title": "Nearest Neighbor",
@@ -95,7 +102,7 @@ async def create_upload_file(file: UploadFile = File(...), width: int = Form(...
         {
             "title": "Bilinear",
             "alt": "Image processed with Bilinear algorithm",
-            "src": f"img?path={filename}"
+            "src": f"img?path={image_biLi}"
         },
         {
             "title": "Bicubic",
