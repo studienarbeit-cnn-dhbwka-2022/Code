@@ -31,13 +31,6 @@ class BilinearInterpolation(Image):
                 w3 = (x2 - x_old) * (y_old - y1)
                 w4 = (x_old - x1) * (y_old - y1)
 
-                # Normalize the weights
-                w_sum = w1 + w2 + w3 + w4
-                w1 /= w_sum
-                w2 /= w_sum
-                w3 /= w_sum
-                w4 /= w_sum
-
                 # Get the pixel values of the surrounding pixels
                 p1 = self.img.getpixel((x1, y1))
                 p2 = self.img.getpixel((x2, y1))
@@ -55,3 +48,8 @@ class BilinearInterpolation(Image):
         self.newImg = new_image
 
         return self.save()
+
+
+if __name__ == "__main__":
+    img = BilinearInterpolation("../../img/48661bdc-7e8c-47e2-ba52-84dc69cf3b39.png")
+    img.manipulate((300, 300))
