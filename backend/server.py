@@ -6,6 +6,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.skalierungsmethoden.bicubic_interpolation import BicubicInterpolation
 from backend.skalierungsmethoden.pixel_verdopplung import PixelVerdopplung
 from backend.skalierungsmethoden.bilinear_interpolation import BilinearInterpolation
 
@@ -93,6 +94,11 @@ async def create_upload_file(file: UploadFile = File(...), width: int = Form(...
     except Exception:
         image_biLi = "ALAAARM.png"
 
+    try:
+        image_biCu = BicubicInterpolation(filepath).manipulate((width, height))
+    except Exception:
+        image_biCu = "ALAAARM.png"
+
     results = [
         {
             "title": "Nearest Neighbor",
@@ -107,7 +113,7 @@ async def create_upload_file(file: UploadFile = File(...), width: int = Form(...
         {
             "title": "Bicubic",
             "alt": "Image processed with Bicubic algorithm",
-            "src": f"img?path={filename}"
+            "src": f"img?path={image_biCu}"
         },
         {
             "title": "Lanczos",
