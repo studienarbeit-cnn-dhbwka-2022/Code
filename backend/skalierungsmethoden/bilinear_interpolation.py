@@ -1,5 +1,4 @@
 from backend.image import Image
-from PIL import Image as PILImage
 
 
 class BilinearInterpolation(Image):
@@ -8,22 +7,18 @@ class BilinearInterpolation(Image):
         super().__init__(path, extend)
 
     def manipulate(self, new_size):
-        if not new_size:
-            new_size = (0, 0)
-        width, height = self.img.size
-        new_width, new_height = new_size if new_size != (0, 0) else (width * 2, height * 2)
-        new_image = PILImage.new(self.img.mode, (new_width, new_height))
+        super().manipulate(new_size)
 
-        for y in range(new_height):
-            for x in range(new_width):
-                x_old = x / (new_width / width)
-                y_old = y / (new_height / height)
+        for y in range(self.new_height):
+            for x in range(self.new_width):
+                x_old = x / (self.new_width / self.width)
+                y_old = y / (self.new_height / self.height)
 
                 # Find the surrounding pixels
                 x1 = int(x_old)
-                x2 = min(x1 + 1, width - 1)
+                x2 = min(x1 + 1, self.width - 1)
                 y1 = int(y_old)
-                y2 = min(y1 + 1, height - 1)
+                y2 = min(y1 + 1, self.height - 1)
 
                 # Find the weights
                 w1 = (x2 - x_old) * (y2 - y_old)
@@ -43,8 +38,6 @@ class BilinearInterpolation(Image):
                     int(w1 * p1[1] + w2 * p2[1] + w3 * p3[1] + w4 * p4[1]),
                     int(w1 * p1[2] + w2 * p2[2] + w3 * p3[2] + w4 * p4[2])
                 )
-                new_image.putpixel((x, y), new_pixel)
-
-        self.newImg = new_image
+                self.newImg.putpixel((x, y), new_pixel)
 
         return self.save()
