@@ -48,8 +48,3 @@ class BilinearInterpolation(Image):
         self.newImg = new_image
 
         return self.save()
-
-
-if __name__ == "__main__":
-    img = BilinearInterpolation("../../img/48661bdc-7e8c-47e2-ba52-84dc69cf3b39.png")
-    img.manipulate((300, 300))

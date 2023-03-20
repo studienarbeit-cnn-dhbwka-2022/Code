@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.skalierungsmethoden.bicubic_interpolation import BicubicInterpolation
+from backend.skalierungsmethoden.lanczos_interpolation import LanczosInterpolation
 from backend.skalierungsmethoden.pixel_verdopplung import PixelVerdopplung
 from backend.skalierungsmethoden.bilinear_interpolation import BilinearInterpolation
 
@@ -99,6 +100,11 @@ async def create_upload_file(file: UploadFile = File(...), width: int = Form(...
     except Exception:
         image_biCu = "ALAAARM.png"
 
+    try:
+        image_lcz = LanczosInterpolation(filepath).manipulate((width, height))
+    except Exception:
+        image_lcz = "ALAAARM.png"
+
     results = [
         {
             "title": "Nearest Neighbor",
@@ -118,7 +124,7 @@ async def create_upload_file(file: UploadFile = File(...), width: int = Form(...
         {
             "title": "Lanczos",
             "alt": "Image processed with Lanczos algorithm",
-            "src": f"img?path={filename}"
+            "src": f"img?path={image_lcz}"
         },
     ]
 
