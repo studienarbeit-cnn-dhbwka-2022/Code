@@ -23,9 +23,6 @@ class LanczosInterpolation(Image):
         new_width, new_height = new_size if new_size != (0, 0) else (width * 2, height * 2)
         new_image = PILImage.new(self.img.mode, (new_width, new_height))
 
-        # Lanczos interpolation
-        # https://en.wikipedia.org/wiki/Lanczos_resampling
-
         for i in range(new_width):
             for j in range(new_height):
                 # Calculate the corresponding coordinates in the original image
@@ -39,7 +36,7 @@ class LanczosInterpolation(Image):
 
                 for m in range(u - 2, u + 3):
                     for n in range(v - 2, v + 3):
-                        if m >= 0 and n >= 0 and m < width and n < height:
+                        if 0 <= m < width and 0 <= n < height:
                             weight = self.lanczos_kernel(s - (m - u)) * self.lanczos_kernel(t - (n - v))
                             pixel = tuple([p + weight * self.img.getpixel((m, n))[i] for i, p in enumerate(pixel)])
                             weight_sum += weight
