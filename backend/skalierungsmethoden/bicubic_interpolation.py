@@ -1,5 +1,4 @@
 from backend.image import Image
-from PIL import Image as PILImage
 
 
 def _cubic(x, a=-0.5):
@@ -17,16 +16,12 @@ class BicubicInterpolation(Image):
         super().__init__(path, extend)
 
     def manipulate(self, new_size):
-        if not new_size:
-            new_size = (0, 0)
-        width, height = self.img.size
-        new_width, new_height = new_size if new_size != (0, 0) else (width * 2, height * 2)
-        new_image = PILImage.new(self.img.mode, (new_width, new_height))
+        super().manipulate(new_size)
 
-        for y in range(new_height):
-            for x in range(new_width):
-                x_old = x / (new_width / width)
-                y_old = y / (new_height / height)
+        for y in range(self.new_height):
+            for x in range(self.new_width):
+                x_old = x / (self.new_width / self.width)
+                y_old = y / (self.new_height / self.height)
 
                 # Find the surrounding pixels
                 x1 = int(x_old) - 1
@@ -75,8 +70,6 @@ class BicubicInterpolation(Image):
                     int(max(0, min(255, green))),
                     int(max(0, min(255, blue)))
                 )
-                new_image.putpixel((x, y), new_pixel)
-
-        self.newImg = new_image
+                self.newImg.putpixel((x, y), new_pixel)
 
         return self.save()
