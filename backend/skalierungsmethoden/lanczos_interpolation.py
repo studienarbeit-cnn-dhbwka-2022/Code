@@ -1,5 +1,4 @@
 from backend.image import Image
-from PIL import Image as PILImage
 import math
 
 
@@ -17,16 +16,12 @@ class LanczosInterpolation(Image):
             return math.sin(math.pi * x) * math.sin(math.pi * x / a) / (math.pi ** 2 * x ** 2)
 
     def manipulate(self, new_size):
-        if not new_size:
-            new_size = (0, 0)
-        width, height = self.img.size
-        new_width, new_height = new_size if new_size != (0, 0) else (width * 2, height * 2)
-        new_image = PILImage.new(self.img.mode, (new_width, new_height))
+        super().manipulate(new_size)
 
-        for i in range(new_width):
-            for j in range(new_height):
+        for i in range(self.new_width):
+            for j in range(self.new_height):
                 # Calculate the corresponding coordinates in the original image
-                x, y = i * width / new_width, j * height / new_height
+                x, y = i * self.width / self.new_width, j * self.height / self.new_height
                 u, v = math.floor(x), math.floor(y)
                 s, t = x - u, y - v
 
@@ -36,14 +31,12 @@ class LanczosInterpolation(Image):
 
                 for m in range(u - 2, u + 3):
                     for n in range(v - 2, v + 3):
-                        if 0 <= m < width and 0 <= n < height:
+                        if 0 <= m < self.width and 0 <= n < self.height:
                             weight = self.lanczos_kernel(s - (m - u)) * self.lanczos_kernel(t - (n - v))
                             pixel = tuple([p + weight * self.img.getpixel((m, n))[i] for i, p in enumerate(pixel)])
                             weight_sum += weight
                 if weight_sum > 0:
                     pixel = tuple([int(p / weight_sum) for p in pixel])
-                    new_image.putpixel((i, j), pixel)
-
-        self.newImg = new_image
+                    self.newImg.putpixel((i, j), pixel)
 
         return self.save()
