@@ -1,7 +1,9 @@
 FROM python:3.9
 ENV PYTHONUNBUFFERED 1
 
-RUN apt-get update && apt-get install -y
+RUN apt-get update && apt-get upgrade -y
+
+RUN apt-get install -y cmake
 
 WORKDIR /
 COPY ./requirements.txt .
