@@ -85,47 +85,19 @@ async def create_upload_file(file: UploadFile = File(...), width: int = Form(...
 
     sleep(1)
 
-    try:
-        image_p2 = PixelVerdopplung(filepath).manipulate((width, height))
-    except Exception:
-        image_p2 = "ALAAARM.png"
-
-    try:
-        image_biLi = BilinearInterpolation(filepath).manipulate((width, height))
-    except Exception:
-        image_biLi = "ALAAARM.png"
-
-    try:
-        image_biCu = BicubicInterpolation(filepath).manipulate((width, height))
-    except Exception:
-        image_biCu = "ALAAARM.png"
-
-    try:
-        image_lcz = LanczosInterpolation(filepath).manipulate((width, height))
-    except Exception:
-        image_lcz = "ALAAARM.png"
+    def process_image(algorithm):
+        try:
+            return algorithm(filepath).manipulate((width, height))
+        except Exception:
+            return "ALAAARM.png"
 
     results = [
         {
-            "title": "Nearest Neighbor",
-            "alt": "Image processed with Nearest Neighbor algorithm",
-            "src": f"img?path={image_p2}"
-        },
-        {
-            "title": "Bilinear",
-            "alt": "Image processed with Bilinear algorithm",
-            "src": f"img?path={image_biLi}"
-        },
-        {
-            "title": "Bicubic",
-            "alt": "Image processed with Bicubic algorithm",
-            "src": f"img?path={image_biCu}"
-        },
-        {
-            "title": "Lanczos",
-            "alt": "Image processed with Lanczos algorithm",
-            "src": f"img?path={image_lcz}"
-        },
+            "title": algorithm.__name__,
+            "alt": f"Image processed with {algorithm.__name__} algorithm",
+            "src": f"img?path={process_image(algorithm)}"
+        }
+        for algorithm in [PixelVerdopplung, BilinearInterpolation, BicubicInterpolation, LanczosInterpolation]
     ]
 
     return results
