@@ -101,7 +101,7 @@ async def create_upload_file(file: UploadFile = File(...), width: int = Form(...
             image_to_process = {
                 "title": algorithm.__name__,
                 "alt": "Failed to process image",
-                "src": "ALAAARM.png"
+                "src": "img?path=ALAAARM.png"
             }
         finally:
             results.append(image_to_process)
