@@ -58,7 +58,11 @@ async def read_image(path: str):
 @app.post("/img")
 async def create_upload_file(file: UploadFile = File(...), width: int = Form(...), height: int = Form(...)):
     if not file.content_type.startswith('image/'):
-        raise HTTPException(status_code=422, detail="Only image files are allowed", headers={"X-Error": "Only image files are allowed"})
+        raise HTTPException(
+            status_code=422,
+            detail="Only image files are allowed",
+            headers={"X-Error": "Only image files are allowed"}
+        )
 
     if width < 1 or height < 1:
         raise HTTPException(
@@ -85,19 +89,21 @@ async def create_upload_file(file: UploadFile = File(...), width: int = Form(...
 
     sleep(1)
 
-    def process_image(algorithm):
-        try:
-            return algorithm(filepath).manipulate((width, height))
-        except Exception:
-            return "ALAAARM.png"
+    results = []
 
-    results = [
-        {
-            "title": algorithm.__name__,
-            "alt": f"Image processed with {algorithm.__name__} algorithm",
-            "src": f"img?path={process_image(algorithm)}"
-        }
-        for algorithm in [PixelVerdopplung, BilinearInterpolation, BicubicInterpolation, LanczosInterpolation]
-    ]
+    for algorithm in [PixelVerdopplung, BilinearInterpolation, BicubicInterpolation, LanczosInterpolation]:
+        image_to_process = None
+        try:
+            image_to_process = algorithm(filepath)
+            image_to_process.manipulate((width, height))
+            image_to_process = image_to_process.to_dict()
+        except Exception:
+            image_to_process = {
+                "title": algorithm.__name__,
+                "alt": "Failed to process image",
+                "src": "ALAAARM.png"
+            }
+        finally:
+            results.append(image_to_process)
 
     return results

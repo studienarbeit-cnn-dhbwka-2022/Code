@@ -30,3 +30,10 @@ class Image:
             return self.newName
         except:
             return "ALAAARM.png"
+
+    def to_dict(self):
+        return {
+            "title": self.__class__.__name__,
+            "alt": f"Image processed with {self.__class__.__name__} algorithm",
+            "src": f"img?path={self.newName}"
+        }
