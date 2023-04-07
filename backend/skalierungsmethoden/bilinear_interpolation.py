@@ -20,6 +20,14 @@ class BilinearInterpolation(Image):
                 y1 = int(y_old)
                 y2 = min(y1 + 1, self.height - 1)
 
+                # Check if x2 and y2 are out of bounds
+                if x2 == self.width - 1:
+                    x2 = x1
+                    x1 -= 1
+                if y2 == self.height - 1:
+                    y2 = y1
+                    y1 -= 1
+
                 # Find the weights
                 w1 = (x2 - x_old) * (y2 - y_old)
                 w2 = (x_old - x1) * (y2 - y_old)
