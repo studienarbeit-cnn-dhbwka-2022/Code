@@ -62,8 +62,10 @@ class BicubicInterpolation(Image):
                         ox = ix + i
                         oy = iy + j
                         if ox < 0 or oy < 0 or ox >= self.width or oy >= self.height:
-                            # if the pixel is outside the original image, use black
-                            pixel_value = [0, 0, 0]
+                            # if the pixel is outside the original image, use mirror padding
+                            pixel_value = list(
+                                self.img.getpixel((min(max(ox, 0), self.width - 1), min(max(oy, 0), self.height - 1)))
+                            )
                         else:
                             pixel_value = list(self.img.getpixel((ox, oy)))
 
