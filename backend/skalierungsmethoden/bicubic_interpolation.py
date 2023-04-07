@@ -1,3 +1,5 @@
+import math
+
 from backend.image import Image
 
 
@@ -10,6 +12,14 @@ def _cubic(x, a=-0.5):
     return 0
 
 
+def _get_weight(distance):
+    # calculate the weight for the given distance
+    abs_distance = abs(distance)
+    if abs_distance <= 1:
+        return _cubic(abs_distance)
+    return 0
+
+
 class BicubicInterpolation(Image):
     def __init__(self, path):
         extend = "biCu"
@@ -18,58 +28,53 @@ class BicubicInterpolation(Image):
     def manipulate(self, new_size):
         super().manipulate(new_size)
 
+        # iterate over each pixel in the new image
         for y in range(self.new_height):
             for x in range(self.new_width):
-                x_old = x / (self.new_width / self.width)
-                y_old = y / (self.new_height / self.height)
+                # calculate the corresponding pixel coordinates in the original image
+                px = x * self.width / self.new_width
+                py = y * self.height / self.new_height
 
-                # Find the surrounding pixels
-                x1 = int(x_old) - 1
-                x2 = x1 + 1
-                x3 = x2 + 1
-                x4 = x3 + 1
-                y1 = int(y_old) - 1
-                y2 = y1 + 1
-                y3 = y2 + 1
-                y4 = y3 + 1
+                # calculate the integer coordinates of the surrounding pixels in the original image
+                ix = math.floor(px)
+                iy = math.floor(py)
 
-                # Find the fractional part of the x and y coordinates
-                frac_x = x_old - int(x_old)
-                frac_y = y_old - int(y_old)
+                # calculate the fractional distance of the current pixel from the surrounding pixels
+                dx = px - ix
+                dy = py - iy
 
-                # Calculate the coefficients
-                cx = [_cubic(i - frac_x) for i in range(4)]
-                cy = [_cubic(i - frac_y) for i in range(4)]
+                # calculate the weights for each of the surrounding pixels
+                weights = []
+                for j in range(-1, 3):
+                    for i in range(-1, 3):
+                        weight = _get_weight(i - dx) * _get_weight(dy - j)
+                        weights.append(weight)
 
-                # Get the pixel values of the surrounding pixels
-                pixels = []
-                for j in range(y1, y4 + 1):
-                    row_pixels = []
-                    for i in range(x1, x4 + 1):
-                        try:
-                            row_pixels.append(self.img.getpixel((i, j)))
-                        except IndexError:
-                            pass
-                    pixels.append(row_pixels)
+                # normalize the weights
+                total_weight = sum(weights)
+                normalized_weights = [w / total_weight for w in weights]
 
-                # Interpolate the pixel value
-                red = 0
-                green = 0
-                blue = 0
-                for i in range(4):
-                    for j in range(4):
-                        try:
-                            red += cx[i] * cy[j] * pixels[j][i][0]
-                            green += cx[i] * cy[j] * pixels[j][i][1]
-                            blue += cx[i] * cy[j] * pixels[j][i][2]
-                        except IndexError:
-                            pass
+                # calculate the new pixel value
+                new_pixel = [0, 0, 0]
+                for j in range(-1, 3):
+                    for i in range(-1, 3):
+                        # get the pixel value from the original image
+                        ox = ix + i
+                        oy = iy + j
+                        if ox < 0 or oy < 0 or ox >= self.width or oy >= self.height:
+                            # if the pixel is outside the original image, use black
+                            pixel_value = [0, 0, 0]
+                        else:
+                            pixel_value = list(self.img.getpixel((ox, oy)))
 
-                new_pixel = (
-                    int(max(0, min(255, red))),
-                    int(max(0, min(255, green))),
-                    int(max(0, min(255, blue)))
-                )
-                self.newImg.putpixel((x, y), new_pixel)
+                        # add the weighted pixel value to the new pixel
+                        weight_index = (j + 1) * 4 + (i + 1)
+                        weight = normalized_weights[weight_index]
+                        for k in range(3):
+                            new_pixel[k] += weight * pixel_value[k]
+
+                # set the new pixel value in the new image
+                self.newImg.putpixel((x, y), (int(new_pixel[0]), int(new_pixel[1]), int(new_pixel[2])))
 
         return self.save()
+
